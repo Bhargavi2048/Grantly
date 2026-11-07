@@ -12,7 +12,9 @@ import {
   DollarSign, 
   ChevronRight,
   TrendingUp,
-  ShieldCheck
+  ShieldCheck,
+  LogOut,
+  LogIn
 } from 'lucide-react';
 
 export default function Navbar({ 
@@ -22,7 +24,10 @@ export default function Navbar({
   onOpenProfile, 
   isDarkMode, 
   toggleDarkMode,
-  stats 
+  stats,
+  currentUser,
+  onSignOut,
+  onOpenLogin
 }) {
   const navItems = [
     { id: 'explorer', label: 'Discover Grants', icon: Compass, badge: null },
@@ -118,24 +123,46 @@ export default function Navbar({
               {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
             </button>
 
-            {/* Student Profile Trigger Button */}
-            <button
-              onClick={onOpenProfile}
-              className="flex items-center space-x-2 pl-2 pr-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 dark:hover:border-emerald-500 transition-all shadow-sm group"
-            >
-              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-xs ring-2 ring-emerald-500/20">
-                {studentProfile.fullName.charAt(0)}
+            {/* Auth / Profile Section */}
+            {currentUser ? (
+              <div className="flex items-center space-x-1.5">
+                {/* Student Profile Trigger Button */}
+                <button
+                  onClick={onOpenProfile}
+                  className="flex items-center space-x-2 pl-2 pr-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 dark:hover:border-emerald-500 transition-all shadow-sm group"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-xs ring-2 ring-emerald-500/20">
+                    {studentProfile.fullName.charAt(0)}
+                  </div>
+                  <div className="text-left hidden sm:block">
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                      {studentProfile.fullName.split(' ')[0]}
+                    </p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                      {studentProfile.gpa.toFixed(2)} GPA · {studentProfile.major.slice(0, 10)}
+                    </p>
+                  </div>
+                  <span className="text-slate-400 text-xs">▼</span>
+                </button>
+
+                {/* Sign Out Button */}
+                <button
+                  onClick={onSignOut}
+                  className="p-2 text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                  {studentProfile.fullName.split(' ')[0]}
-                </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-                  {studentProfile.gpa.toFixed(2)} GPA · {studentProfile.major.slice(0, 10)}
-                </p>
-              </div>
-              <span className="text-slate-400 text-xs">▼</span>
-            </button>
+            ) : (
+              <button
+                onClick={onOpenLogin}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 transition-colors"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            )}
           </div>
         </div>
 

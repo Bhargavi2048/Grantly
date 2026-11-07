@@ -168,9 +168,22 @@ export default function ScholarshipDetailModal({
 
         {/* Overview & Mission */}
         <div className="mb-6">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">
-            Opportunity Overview
-          </h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Opportunity Overview
+            </h3>
+            {scholarship.applicationUrl && (
+              <a
+                href={scholarship.applicationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline"
+              >
+                <span>Visit Official Portal</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+          </div>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             {scholarship.description}
           </p>

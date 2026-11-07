@@ -7,6 +7,7 @@ import AidStackingCalculator from './components/AidStackingCalculator';
 import DocumentVault from './components/DocumentVault';
 import ScholarshipDetailModal from './components/ScholarshipDetailModal';
 import StudentProfileModal from './components/StudentProfileModal';
+import LoginPage from './components/LoginPage';
 
 import { SCHOLARSHIPS_DATA, calculateMatchScore } from './data/scholarships';
 import { INITIAL_STUDENT_PROFILE, INITIAL_VAULT_DOCUMENTS } from './data/initialProfile';
@@ -15,6 +16,14 @@ import { GraduationCap, Sparkles, HeartHandshake, ShieldCheck, ArrowRight } from
 export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState('explorer');
+
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(() => {
+    const savedUser = localStorage.getItem('grantly_user_v2');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // LocalStorage-backed state
   const [scholarships, setScholarships] = useState(() => {
@@ -45,6 +54,14 @@ export default function App() {
 
   // Persist to localStorage
   useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('grantly_user_v2', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('grantly_user_v2');
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
     localStorage.setItem('grantly_scholarships_v2', JSON.stringify(scholarships));
   }, [scholarships]);
 
@@ -66,6 +83,26 @@ export default function App() {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
+
+  // Auth Handlers
+  const handleLogin = (userProfile) => {
+    setCurrentUser({
+      name: userProfile.fullName,
+      email: userProfile.email,
+      institution: userProfile.institution
+    });
+    setStudentProfile(userProfile);
+    setShowLoginModal(false);
+  };
+
+  const handleSignOut = () => {
+    setCurrentUser(null);
+    setShowLoginModal(true);
+  };
+
+  const handleGuestAccess = () => {
+    setShowLoginModal(false);
+  };
 
   // Global platform statistics
   const stats = useMemo(() => {
@@ -158,9 +195,21 @@ export default function App() {
       setScholarships(SCHOLARSHIPS_DATA);
       setStudentProfile(INITIAL_STUDENT_PROFILE);
       setVaultDocuments(INITIAL_VAULT_DOCUMENTS);
+      setCurrentUser(null);
       localStorage.clear();
     }
   };
+
+  // If user is not logged in and login screen is requested or initially not logged in
+  if (!currentUser && showLoginModal) {
+    return (
+      <LoginPage 
+        onLogin={handleLogin}
+        onGuestAccess={handleGuestAccess}
+        currentProfile={studentProfile}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
@@ -173,7 +222,26 @@ export default function App() {
         isDarkMode={isDarkMode}
         toggleDarkMode={toggleDarkMode}
         stats={stats}
+        currentUser={currentUser}
+        onSignOut={handleSignOut}
+        onOpenLogin={() => setShowLoginModal(true)}
       />
+
+      {/* Guest Mode Banner if not logged in */}
+      {!currentUser && (
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 text-xs flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-4 h-4" />
+            <span>You are browsing Grantly in <strong>Guest Mode</strong>. Sign in to save your personal scholarship applications.</span>
+          </div>
+          <button
+            onClick={() => setShowLoginModal(true)}
+            className="px-3 py-1 bg-white text-emerald-900 rounded-lg font-bold hover:bg-emerald-50 transition-colors"
+          >
+            Sign In / Register
+          </button>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -242,7 +310,7 @@ export default function App() {
           <div className="flex items-center space-x-4">
             <button
               onClick={handleResetDemoData}
-              className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+              className="hover:text-emerald-600 dark:text-emerald-400 transition-colors"
             >
               Reset Demo Sandbox
             </button>

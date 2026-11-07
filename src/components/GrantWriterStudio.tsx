@@ -7,21 +7,19 @@ import {
   Save, 
   Wand2, 
   Lightbulb, 
-  TrendingUp
+  TrendingUp,
+  Activity,
+  Heart
 } from 'lucide-react';
 import { Scholarship, StudentProfile, VaultDocument } from '../types';
 import { sanitizeText } from '../utils/security';
+import { AIAnalysisService, OutlineBeat } from '../services/aiAnalysisService';
 
 interface GrantWriterStudioProps {
   scholarships: Scholarship[];
   selectedScholarshipId: string;
   studentProfile: StudentProfile;
   onSaveToVault: (doc: VaultDocument) => void;
-}
-
-interface OutlineBeat {
-  phase: string;
-  tip: string;
 }
 
 export default function GrantWriterStudio({ 
@@ -71,8 +69,9 @@ Through our university's computational biology lab, I spearheaded a pilot projec
     }
   }, [activeSchId, activeScholarship]);
 
-  // Compute metrics
-  const wordCount = essayContent.trim() ? essayContent.trim().split(/\s+/).length : 0;
+  // Compute live AI metrics
+  const analysis = AIAnalysisService.analyzeEssayText(essayContent);
+  const wordCount = analysis.wordCount;
   const wordLimit = activePrompt.wordLimit;
   const progressPercent = Math.min(100, Math.round((wordCount / wordLimit) * 100));
   const isOverLimit = wordCount > wordLimit;
@@ -91,26 +90,14 @@ Through our university's computational biology lab, I spearheaded a pilot projec
   const handleGenerateOutline = () => {
     setIsGeneratingOutline(true);
     setTimeout(() => {
-      setOutline([
-        {
-          phase: 'Beat 1: The Inciting Spark & Hook',
-          tip: `Open with a sensory, specific scene depicting your background as a ${studentProfile.major} student facing structural challenges, avoiding generic quotes.`
-        },
-        {
-          phase: 'Beat 2: The Crucible & Growth',
-          tip: `Detail how handling collegiate coursework alongside financial commitments honed your problem-solving resilience.`
-        },
-        {
-          phase: 'Beat 3: Community Multiplier Effect',
-          tip: `Demonstrate leadership: highlight your involvement in ${studentProfile.communityInvolvement} to prove you invest in others.`
-        },
-        {
-          phase: 'Beat 4: The Vision with this Fellowship',
-          tip: `Connect the ${activeScholarship ? activeScholarship.title : 'Scholarship'} directly to your milestone: ${studentProfile.careerGoal}.`
-        }
-      ]);
+      const beats = AIAnalysisService.generateNarrativeOutline(
+        activePrompt,
+        studentProfile,
+        activeScholarship ? activeScholarship.title : 'Scholarship'
+      );
+      setOutline(beats);
       setIsGeneratingOutline(false);
-    }, 600);
+    }, 450);
   };
 
   const handleCopy = () => {
@@ -150,7 +137,7 @@ Through our university's computational biology lab, I spearheaded a pilot projec
             </h1>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Craft authentic, rubric-aligned scholarship essays with real-time prompt guidance and narrative architecture.
+            Craft authentic, rubric-aligned scholarship essays with real-time prompt guidance, voice authenticity scoring, and narrative architecture.
           </p>
         </div>
 
@@ -262,8 +249,47 @@ Through our university's computational biology lab, I spearheaded a pilot projec
           </div>
         </section>
 
-        {/* Right Side: AI Assistant & Rubric Themes (4 cols) */}
+        {/* Right Side: AI Assistant & Real-Time Scoring Metrics (4 cols) */}
         <section aria-label="AI Rubric and Narrative Guidance" className="lg:col-span-4 space-y-4">
+          
+          {/* Innovation: AI Authenticity & Readability Scoring Engine */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+              <Activity className="w-4 h-4 text-purple-500" aria-hidden="true" />
+              AI Voice Authenticity & Readability
+            </h2>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2.5 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block flex items-center gap-1">
+                  <Heart className="w-3 h-3 text-rose-500 fill-current" aria-hidden="true" /> Authenticity Index
+                </span>
+                <span className="text-base font-extrabold text-purple-700 dark:text-purple-300 block mt-0.5">
+                  {analysis.authenticityIndex}%
+                </span>
+                <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">
+                  {analysis.authenticityLabel}
+                </span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Readability Score
+                </span>
+                <span className="text-base font-extrabold text-slate-800 dark:text-slate-200 block mt-0.5">
+                  {analysis.readingEaseScore}/100
+                </span>
+                <span className="text-[10px] font-semibold text-slate-500">
+                  {analysis.readingEaseLabel}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+              Estimated Reading Time: <strong>~{analysis.readingTimeMinutes} min</strong>. Evaluators favor concrete personal scenes over abstract jargon.
+            </p>
+          </div>
+
           {/* Rubric Theme Alignment Meter */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 mb-3">
@@ -330,15 +356,6 @@ Through our university's computational biology lab, I spearheaded a pilot projec
             )}
           </div>
 
-          {/* Winning Essay Tips */}
-          <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-300 space-y-1.5">
-            <p className="font-bold flex items-center gap-1 text-amber-800 dark:text-amber-200">
-              💡 Review Committee Pro-Tip:
-            </p>
-            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-              Show, don't tell: Rather than stating "I am hardworking", depict the exact 6 AM warehouse shifts or troubleshooting late hours at the computer lab. Specificity wins scholarships.
-            </p>
-          </div>
         </section>
       </div>
     </div>

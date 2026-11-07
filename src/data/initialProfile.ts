@@ -1,5 +1,9 @@
-// Initial Student Profile for GRANTLY
-export const INITIAL_STUDENT_PROFILE = {
+// Initial Student Profile and Vault Data for GRANTLY
+// Typed with strict TypeScript definitions
+
+import { StudentProfile, VaultDocument } from '../types';
+
+export const INITIAL_STUDENT_PROFILE: StudentProfile = {
   fullName: 'Maya Lin',
   email: 'maya.lin@university.edu',
   academicLevel: 'Undergraduate',
@@ -10,20 +14,19 @@ export const INITIAL_STUDENT_PROFILE = {
   gpa: 3.82,
   isFirstGen: true,
   isPellEligible: true,
-  householdIncomeTier: 'pell_eligible', // 'low', 'pell_eligible', 'moderate', 'high'
+  householdIncomeTier: 'pell_eligible',
   stateOfResidence: 'California',
   citizenshipStatus: 'US Citizen',
   careerGoal: 'Artificial Intelligence & Ethical Healthcare Systems',
   communityInvolvement: 'Girls Who Code Mentor, Campus Food Pantry Volunteer',
-  totalFundingGoal: 32000, // Total estimated annual college cost (Tuition + Housing + Supplies)
-  institutionalAid: 12000, // University scholarship & grant
-  federalPellGrant: 7395, // Max federal Pell grant
-  studentWorkStudy: 3500, // Campus work-study
+  totalFundingGoal: 32000,
+  institutionalAid: 12000,
+  federalPellGrant: 7395,
+  studentWorkStudy: 3500,
   personalSavings: 2000,
-  // Remaining gap is 32000 - (12000 + 7395 + 3500 + 2000) = 7,105 without outside scholarships!
 };
 
-export const INITIAL_VAULT_DOCUMENTS = [
+export const INITIAL_VAULT_DOCUMENTS: VaultDocument[] = [
   {
     id: 'doc-1',
     name: 'Personal Statement - Walking New Pathways (First-Gen)',

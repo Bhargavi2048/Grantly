@@ -6,49 +6,43 @@ import {
   Mail, 
   ArrowRight, 
   ShieldCheck, 
-  CheckCircle2, 
   Eye, 
-  EyeOff, 
-  UserCheck, 
-  DollarSign,
-  Compass
+  EyeOff
 } from 'lucide-react';
+import { StudentProfile } from '../types';
+import { sanitizeText } from '../utils/security';
 
-export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [institution, setInstitution] = useState('');
+interface LoginPageProps {
+  onLogin: (profile: StudentProfile) => void;
+  onGuestAccess: () => void;
+  currentProfile: StudentProfile;
+}
 
-  const handleSubmit = (e) => {
+export default function LoginPage({ onLogin, onGuestAccess, currentProfile }: LoginPageProps): JSX.Element {
+  const [isRegistering, setIsRegistering] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [fullName, setFullName] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [institution, setInstitution] = useState<string>('');
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
     onLogin({
-      fullName: isRegistering && fullName ? fullName : currentProfile.fullName,
-      email: email,
-      institution: isRegistering && institution ? institution : currentProfile.institution,
-      academicLevel: currentProfile.academicLevel,
-      major: currentProfile.major,
-      gpa: currentProfile.gpa,
-      isFirstGen: currentProfile.isFirstGen,
-      isPellEligible: currentProfile.isPellEligible,
-      householdIncomeTier: currentProfile.householdIncomeTier,
-      totalFundingGoal: currentProfile.totalFundingGoal,
-      institutionalAid: currentProfile.institutionalAid,
-      federalPellGrant: currentProfile.federalPellGrant,
-      studentWorkStudy: currentProfile.studentWorkStudy,
-      personalSavings: currentProfile.personalSavings
+      ...currentProfile,
+      fullName: isRegistering && fullName ? sanitizeText(fullName) : currentProfile.fullName,
+      email: sanitizeText(email),
+      institution: isRegistering && institution ? sanitizeText(institution) : currentProfile.institution,
     });
   };
 
-  const handleQuickDemoLogin = (persona) => {
+  const handleQuickDemoLogin = (persona: StudentProfile) => {
     onLogin(persona);
   };
 
-  const DEMO_PERSONAS = [
+  const DEMO_PERSONAS: { name: string; tag: string; detail: string; profile: StudentProfile }[] = [
     {
       name: 'Maya Lin',
       tag: 'Undergraduate First-Gen',
@@ -65,6 +59,10 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
         isFirstGen: true,
         isPellEligible: true,
         householdIncomeTier: 'pell_eligible',
+        stateOfResidence: 'California',
+        citizenshipStatus: 'US Citizen',
+        careerGoal: 'Artificial Intelligence & Ethical Healthcare Systems',
+        communityInvolvement: 'Girls Who Code Mentor, Campus Food Pantry Volunteer',
         totalFundingGoal: 32000,
         institutionalAid: 12000,
         federalPellGrant: 7395,
@@ -88,6 +86,10 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
         isFirstGen: true,
         isPellEligible: false,
         householdIncomeTier: 'low',
+        stateOfResidence: 'Texas',
+        citizenshipStatus: 'US Citizen',
+        careerGoal: 'Community Clinic Family Nurse Practitioner',
+        communityInvolvement: 'Free Clinic EMT, Spanish Medical Interpreter',
         totalFundingGoal: 28000,
         institutionalAid: 9000,
         federalPellGrant: 0,
@@ -111,6 +113,10 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
         isFirstGen: false,
         isPellEligible: false,
         householdIncomeTier: 'moderate',
+        stateOfResidence: 'New York',
+        citizenshipStatus: 'US Citizen',
+        careerGoal: 'Clean Energy & Nanotechnology Research',
+        communityInvolvement: 'Solar Car Team Captain, Science Olympiad Coach',
         totalFundingGoal: 45000,
         institutionalAid: 20000,
         federalPellGrant: 0,
@@ -124,7 +130,7 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-10 sm:px-6 lg:px-8 transition-colors">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         {/* Brand Icon */}
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-xl shadow-emerald-500/20 text-white font-bold text-2xl mb-3">
+        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-xl shadow-emerald-500/20 text-white font-bold text-2xl mb-3" aria-hidden="true">
           <GraduationCap className="w-8 h-8" />
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -139,10 +145,13 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
         <div className="bg-white dark:bg-slate-900 py-8 px-6 sm:px-10 shadow-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl space-y-6">
           
           {/* Form Tabs */}
-          <div className="flex border-b border-slate-200 dark:border-slate-800 pb-2">
+          <div className="flex border-b border-slate-200 dark:border-slate-800 pb-2" role="tablist" aria-label="Sign In Options">
             <button
+              type="button"
+              role="tab"
+              aria-selected={!isRegistering}
               onClick={() => setIsRegistering(false)}
-              className={`flex-1 py-2 text-sm font-bold text-center border-b-2 transition-all ${
+              className={`flex-1 py-2 text-sm font-bold text-center border-b-2 transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none ${
                 !isRegistering
                   ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400'
                   : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -151,8 +160,11 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
               Sign In to Grantly
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={isRegistering}
               onClick={() => setIsRegistering(true)}
-              className={`flex-1 py-2 text-sm font-bold text-center border-b-2 transition-all ${
+              className={`flex-1 py-2 text-sm font-bold text-center border-b-2 transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none ${
                 isRegistering
                   ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400 dark:border-emerald-400'
                   : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -165,7 +177,7 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
           {/* Quick 1-Click Demo Profiles */}
           <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60">
             <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-2.5">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               1-Click Demo Access (Test Different Student Archetypes):
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -174,7 +186,8 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
                   key={p.name}
                   type="button"
                   onClick={() => handleQuickDemoLogin(p.profile)}
-                  className="p-2.5 rounded-xl border border-emerald-300/80 dark:border-emerald-800 bg-white dark:bg-slate-800 hover:border-emerald-500 text-left transition-all shadow-xs group"
+                  className="p-2.5 rounded-xl border border-emerald-300/80 dark:border-emerald-800 bg-white dark:bg-slate-800 hover:border-emerald-500 text-left transition-all shadow-xs group focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                  aria-label={`Sign in as ${p.name}, ${p.tag}`}
                 >
                   <p className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
                     {p.name}
@@ -197,10 +210,11 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegistering && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label htmlFor="login-full-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Full Name
                 </label>
                 <input
+                  id="login-full-name"
                   type="text"
                   required
                   placeholder="e.g. Maya Lin"
@@ -212,12 +226,13 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label htmlFor="login-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 University or Personal Email
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" aria-hidden="true" />
                 <input
+                  id="login-email"
                   type="email"
                   required
                   placeholder="name@university.edu"
@@ -230,10 +245,11 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
 
             {isRegistering && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label htmlFor="login-institution" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   College / High School Name
                 </label>
                 <input
+                  id="login-institution"
                   type="text"
                   required
                   placeholder="e.g. Pacific State University"
@@ -245,12 +261,13 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label htmlFor="login-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" aria-hidden="true" />
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••••••"
@@ -261,19 +278,20 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none p-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center space-x-2"
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
             >
               <span>{isRegistering ? 'Create Student Account' : 'Sign In to Match Compass'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </form>
 
@@ -282,7 +300,7 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
             <button
               type="button"
               onClick={onGuestAccess}
-              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none p-1 rounded"
             >
               Explore Grantly as Guest (No Sign-In Required) →
             </button>
@@ -290,7 +308,7 @@ export default function LoginPage({ onLogin, onGuestAccess, currentProfile }) {
 
           {/* Privacy & FERPA Badge */}
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center space-x-2 text-[11px] text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <ShieldCheck className="w-4 h-4 text-emerald-500" aria-hidden="true" />
             <span>FERPA-Compliant 256-Bit Financial Privacy Protection</span>
           </div>
 

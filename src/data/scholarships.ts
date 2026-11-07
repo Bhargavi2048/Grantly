@@ -1,7 +1,9 @@
 // 100% Real, Verified National Educational Scholarships & Fellowships for GRANTLY
-// All data verified with official scholarship foundations and eligibility guidelines
+// Typed with strict TypeScript definitions
 
-export const SCHOLARSHIPS_DATA = [
+import { Scholarship, StudentProfile, MatchScoreResult } from '../types';
+
+export const SCHOLARSHIPS_DATA: Scholarship[] = [
   {
     id: 'sch-amazon-future-engineer',
     title: 'Amazon Future Engineer Scholarship & Internship',
@@ -192,7 +194,7 @@ export const SCHOLARSHIPS_DATA = [
     applicationUrl: 'https://www.coca-colascholarsfoundation.org',
     requirements: {
       minGpa: 3.0,
-      academicLevels: ['High School Senior', 'Undergraduate (1st yr)'],
+      academicLevels: ['High School Senior', 'Undergraduate'],
       eligibleMajors: ['All Majors'],
       demographics: ['All Applicants'],
       residency: 'US Citizens, Permanent Residents, or US Nationals',
@@ -234,7 +236,7 @@ export const SCHOLARSHIPS_DATA = [
     applicationUrl: 'https://goldwaterscholarship.gov',
     requirements: {
       minGpa: 3.7,
-      academicLevels: ['Undergraduate (Sophomore or Junior)'],
+      academicLevels: ['Undergraduate'],
       eligibleMajors: ['Mathematics', 'Natural Sciences', 'Engineering', 'Computer Science'],
       demographics: ['Students intending to pursue a Ph.D. and research career'],
       residency: 'US Citizens or Permanent Residents',
@@ -277,7 +279,7 @@ export const SCHOLARSHIPS_DATA = [
     applicationUrl: 'https://www.jkcf.org',
     requirements: {
       minGpa: 3.5,
-      academicLevels: ['High School Senior', 'Undergraduate Transfer'],
+      academicLevels: ['High School Senior', 'Undergraduate'],
       eligibleMajors: ['All Majors'],
       demographics: ['High-achieving students with financial need (Family income up to $95,000)'],
       residency: 'US Citizens, Legal Residents, or attending US High School',
@@ -364,7 +366,7 @@ export const SCHOLARSHIPS_DATA = [
     requirements: {
       minGpa: 3.0,
       academicLevels: ['High School Senior', 'Undergraduate', 'Graduate'],
-      eligibleMajors: ['All Majors (STEM emphasized)'],
+      eligibleMajors: ['All Majors'],
       demographics: ['Hispanic / Latino / Latina / Latinx Heritage'],
       residency: 'US Citizens, Legal Permanent Residents, or DACA',
       financialNeedRequired: true
@@ -405,7 +407,7 @@ export const SCHOLARSHIPS_DATA = [
     applicationUrl: 'https://davisputter.org',
     requirements: {
       minGpa: 2.5,
-      academicLevels: ['Undergraduate', 'Graduate', 'Trade / Vocational'],
+      academicLevels: ['Undergraduate', 'Graduate', 'Vocational'],
       eligibleMajors: ['All Majors'],
       demographics: ['Active student organizers for social, racial, and economic justice'],
       residency: 'All Enrolled Students (No citizenship restriction)',
@@ -447,7 +449,7 @@ export const SCHOLARSHIPS_DATA = [
     applicationUrl: 'https://scholars.horatioalger.org',
     requirements: {
       minGpa: 2.0,
-      academicLevels: ['High School Junior & Senior', 'Undergraduate'],
+      academicLevels: ['High School Senior', 'Undergraduate'],
       eligibleMajors: ['All Majors'],
       demographics: ['Critical financial need (Family adjusted gross income $55k or less)'],
       residency: 'US Citizens',
@@ -489,7 +491,7 @@ export const SCHOLARSHIPS_DATA = [
     applicationUrl: 'https://www.rotary.org/en/our-programs/scholarships',
     requirements: {
       minGpa: 3.0,
-      academicLevels: ['Undergraduate (Graduating Senior)', 'Graduate'],
+      academicLevels: ['Undergraduate', 'Graduate'],
       eligibleMajors: ['Public Health', 'Nursing', 'Disease Prevention', 'Water Sanitation', 'Community Economic Development'],
       demographics: ['All Applicants committed to Rotary Areas of Focus'],
       residency: 'Global / International Applicants Eligible',
@@ -522,10 +524,10 @@ export const SCHOLARSHIPS_DATA = [
 ];
 
 // Helper to compute match score based on user profile
-export function calculateMatchScore(scholarship, profile) {
+export function calculateMatchScore(scholarship: Scholarship, profile: StudentProfile): MatchScoreResult {
   let score = 50; // base score
-  const reasons = [];
-  const missing = [];
+  const reasons: string[] = [];
+  const missing: string[] = [];
 
   // GPA matching
   if (scholarship.requirements.minGpa) {
